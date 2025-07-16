@@ -57,8 +57,8 @@ export default function Home() {
       <Header />
       <main className="flex-grow container mx-auto p-4 md:p-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-            Welcome to CropCast
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            Welcome to <span className='text-primary'>CropCast</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Leverage AI to predict crop yields and receive personalized
@@ -68,14 +68,14 @@ export default function Home() {
         </div>
 
         <Tabs defaultValue="recommendations" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto bg-primary/10">
+          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto bg-card border border-border">
             <TabsTrigger value="recommendations">Personalized Recommendations</TabsTrigger>
             <TabsTrigger value="prediction">Yield Prediction</TabsTrigger>
           </TabsList>
           <TabsContent value="recommendations">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start mt-8">
-              <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg">
-                <h2 className="text-2xl font-bold mb-6">
+              <div className="bg-card p-6 md:p-8 rounded-xl border border-border shadow-lg">
+                <h2 className="text-2xl font-bold mb-6 text-primary">
                   Your Farm&apos;s Data
                 </h2>
                 <CropcastForm
@@ -84,30 +84,30 @@ export default function Home() {
                   onError={handleError}
                 />
               </div>
-              <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg min-h-[400px]">
-                <h2 className="text-2xl font-bold mb-6">
+              <div className="bg-card p-6 md:p-8 rounded-xl border border-border shadow-lg min-h-[400px]">
+                <h2 className="text-2xl font-bold mb-6 text-primary">
                   AI-Powered Recommendations
                 </h2>
                 {loading ? (
                   <div className="space-y-4 pt-2">
-                    <Skeleton className="h-28 w-full rounded-lg" />
-                    <Skeleton className="h-28 w-full rounded-lg" />
-                    <Skeleton className="h-28 w-full rounded-lg" />
+                    <Skeleton className="h-28 w-full rounded-lg bg-secondary" />
+                    <Skeleton className="h-28 w-full rounded-lg bg-secondary" />
+                    <Skeleton className="h-28 w-full rounded-lg bg-secondary" />
                   </div>
                 ) : recommendations ? (
                   <div className="space-y-4">
                     <RecommendationCard
-                      icon={<Droplets className="h-8 w-8 text-blue-500" />}
+                      icon={<Droplets className="h-8 w-8 text-blue-400" />}
                       title="Irrigation"
                       description={recommendations.irrigationRecommendation}
                     />
                     <RecommendationCard
-                      icon={<Leaf className="h-8 w-8 text-green-500" />}
+                      icon={<Leaf className="h-8 w-8 text-green-400" />}
                       title="Fertilization"
                       description={recommendations.fertilizationRecommendation}
                     />
                     <RecommendationCard
-                      icon={<CalendarDays className="h-8 w-8 text-amber-600" />}
+                      icon={<CalendarDays className="h-8 w-8 text-amber-400" />}
                       title="Planting Time"
                       description={recommendations.plantingTimeRecommendation}
                     />
@@ -119,7 +119,7 @@ export default function Home() {
                       alt="An illustration of a farm with data analytics overlay"
                       width={400}
                       height={300}
-                      className="rounded-lg mb-4 object-cover"
+                      className="rounded-lg mb-4 object-cover opacity-30"
                       data-ai-hint="agriculture technology"
                     />
                     <p className="mt-4 text-lg">
@@ -132,8 +132,8 @@ export default function Home() {
           </TabsContent>
           <TabsContent value="prediction">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start mt-8">
-              <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg">
-                <h2 className="text-2xl font-bold mb-6">
+              <div className="bg-card p-6 md:p-8 rounded-xl border border-border shadow-lg">
+                <h2 className="text-2xl font-bold mb-6 text-primary">
                   Historical Data
                 </h2>
                 <YieldPredictionForm
@@ -142,18 +142,18 @@ export default function Home() {
                   onError={handleError}
                 />
               </div>
-              <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg min-h-[400px]">
-                <h2 className="text-2xl font-bold mb-6">
+              <div className="bg-card p-6 md:p-8 rounded-xl border border-border shadow-lg min-h-[400px]">
+                <h2 className="text-2xl font-bold mb-6 text-primary">
                   AI-Powered Prediction
                 </h2>
                 {loading ? (
                   <div className="space-y-4 pt-2">
-                    <Skeleton className="h-24 w-full rounded-lg" />
-                    <Skeleton className="h-36 w-full rounded-lg" />
+                    <Skeleton className="h-24 w-full rounded-lg bg-secondary" />
+                    <Skeleton className="h-36 w-full rounded-lg bg-secondary" />
                   </div>
                 ) : prediction ? (
                   <div className="space-y-6">
-                    <Card>
+                    <Card className="bg-secondary border-border">
                       <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
                           <LineChart className="h-10 w-10 text-primary" />
@@ -164,7 +164,7 @@ export default function Home() {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="bg-secondary border-border">
                       <CardContent className="pt-6">
                       <div className="flex items-start gap-4">
                         <MessageSquareQuote className="h-8 w-8 text-accent" />
@@ -183,7 +183,7 @@ export default function Home() {
                       alt="An illustration of data charts and graphs"
                       width={400}
                       height={300}
-                      className="rounded-lg mb-4 object-cover"
+                      className="rounded-lg mb-4 object-cover opacity-30"
                       data-ai-hint="data charts"
                     />
                     <p className="mt-4 text-lg">
@@ -197,10 +197,7 @@ export default function Home() {
         </Tabs>
       </main>
       <footer className="text-center p-4 text-muted-foreground text-sm">
-        <p>
-          Powered by AI for a sustainable future. CropCast &copy;{' '}
-          {new Date().getFullYear()}
-        </p>
+        &copy; {new Date().getFullYear()} CropCast. AI for Modern Agriculture.
       </footer>
     </div>
   );

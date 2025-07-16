@@ -35,8 +35,8 @@ const FileUpload = ({ field, setFile, disabled }: { field: any, setFile: (file: 
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setFileName(file.name);
-      setFile(file); // Pass file to parent
-      field.onChange(file.name); // RHF validation
+      setFile(file);
+      field.onChange(file.name);
     }
   };
 
@@ -51,7 +51,7 @@ const FileUpload = ({ field, setFile, disabled }: { field: any, setFile: (file: 
 
   return (
     <div
-      className={`relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-background transition-colors ${!disabled ? 'cursor-pointer hover:bg-card' : 'cursor-not-allowed opacity-50'}`}
+      className={`relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary border-border transition-all duration-300 ${!disabled ? 'cursor-pointer hover:border-primary hover:bg-primary/10' : 'cursor-not-allowed opacity-50'}`}
       onClick={() => !disabled && inputRef.current?.click()}
     >
       <input
@@ -83,7 +83,7 @@ const FileUpload = ({ field, setFile, disabled }: { field: any, setFile: (file: 
         <div className="flex flex-col items-center justify-center text-center">
           <UploadCloud className="h-8 w-8 text-muted-foreground" />
           <p className="mt-2 text-sm text-muted-foreground">
-            <span className="font-semibold">Click to upload</span> or drag and drop
+            <span className="font-semibold text-primary">Click to upload</span> or drag and drop
           </p>
           <p className="text-xs text-muted-foreground">CSV file</p>
         </div>

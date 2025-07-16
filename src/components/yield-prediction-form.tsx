@@ -110,6 +110,41 @@ export function YieldPredictionForm({
     },
   });
 
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      let content = '';
+      let chunks = 0;
+      const chunkSize = 1024 * 1024 * 5; // 5MB chunks
+      const totalChunks = Math.ceil(file.size / chunkSize);
+
+      const readChunk = (offset: number) => {
+        const reader = new FileReader();
+        const slice = file.slice(offset, offset + chunkSize);
+
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            content += e.target.result;
+            chunks++;
+            setUploadProgress(Math.round((chunks / totalChunks) * 100));
+            if (offset + chunkSize < file.size) {
+              readChunk(offset + chunkSize);
+            } else {
+              resolve(content);
+            }
+          }
+        };
+
+        reader.onerror = (e) => {
+          reject(new Error('Failed to read file: ' + e));
+        };
+        
+        reader.readAsText(slice);
+      };
+
+      readChunk(0);
+    });
+  }
+
   const onSubmit = async () => {
     if (!file) {
       form.setError('agriculturalDataFile', { type: 'manual', message: 'Please select a file.' });
@@ -120,42 +155,26 @@ export function YieldPredictionForm({
     onLoading(true);
     setUploadProgress(0);
 
-    let combinedData = '';
+    try {
+      const fileContent = await readFileAsText(file);
+      setUploadProgress(100);
 
-    Papa.parse(file, {
-      worker: true, // Use a web worker to avoid blocking the main thread.
-      header: true,
-      step: (results) => {
-        // In a real streaming implementation, you would send chunks here.
-        // For now, we accumulate the data as text.
-        combinedData += Papa.unparse([results.data]);
-      },
-      complete: async () => {
-        try {
-          // This will be called after parsing is complete.
-          setUploadProgress(100);
-          const result = await getYieldPrediction({ agriculturalData: combinedData });
-          if (result.success) {
-            onResults(result.success);
-          } else {
-            onError(result.failure || 'An unknown error occurred.');
-            onResults(null);
-          }
-        } catch (e) {
-          console.error(e);
-          onError('An error occurred during prediction.');
-          onResults(null);
-        } finally {
-          setIsSubmitting(false);
-          onLoading(false);
-        }
-      },
-      error: (error) => {
-        onError(`Failed to parse file: ${error.message}`);
-        setIsSubmitting(false);
-        onLoading(false);
-      },
-    });
+      const result = await getYieldPrediction({ agriculturalData: fileContent });
+      
+      if (result.success) {
+        onResults(result.success);
+      } else {
+        onError(result.failure || 'An unknown error occurred.');
+        onResults(null);
+      }
+    } catch (e: any) {
+      console.error(e);
+      onError('An error occurred during prediction: ' + e.message);
+      onResults(null);
+    } finally {
+      setIsSubmitting(false);
+      onLoading(false);
+    }
   };
 
   return (

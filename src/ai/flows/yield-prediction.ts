@@ -32,11 +32,9 @@ export async function predictYield(input: PredictYieldInput): Promise<PredictYie
 const predictYieldPrompt = ai.definePrompt({
   name: 'predictYieldPrompt',
   tools: [summarizeDataTool],
-  inputSchema: PredictYieldInputSchema,
   output: {schema: PredictYieldOutputSchema},
   system: `You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data.
-The user will provide a string of agricultural data.
-You MUST first call the \`summarizeDataTool\` with the \`agriculturalData\` to get a concise summary.
+If you have not been given a data summary, you MUST call the \`summarizeDataTool\` with the \`agriculturalData\` to get a concise summary.
 After receiving the summary from the tool, you MUST use that summary to predict the crop yield.
 Finally, provide actionable recommendations for the farmer based on your prediction and the data summary.`,
 });
@@ -48,9 +46,29 @@ const predictYieldFlow = ai.defineFlow(
     outputSchema: PredictYieldOutputSchema,
   },
   async (input) => {
-    const {output} = await predictYieldPrompt(input);
+    // Step 1: First request to the model.
+    // The model will likely use the `summarizeDataTool` here.
+    let response = await predictYieldPrompt(input);
+
+    // Step 2: Loop through tool requests until the model provides the final answer.
+    while (true) {
+      const toolRequest = response.toolRequest;
+      if (!toolRequest) {
+        // No more tool requests, so the model has given its final answer.
+        break;
+      }
+
+      const toolResponse = await toolRequest.run();
+
+      // Step 3: Send the tool's response back to the model to continue the conversation.
+      response = await predictYieldPrompt(input, {
+        history: [response.request, response.response, toolResponse],
+      });
+    }
+
+    const output = response.output;
     if (!output) {
-      throw new Error('The AI model failed to produce an output.');
+      throw new Error('The AI model failed to produce a valid output.');
     }
     return output;
   }

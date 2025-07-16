@@ -34,8 +34,8 @@ const predictYieldPrompt = ai.definePrompt({
   tools: [summarizeDataTool],
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
-  system: "You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data. First, use the summarizeDataTool to get a summary of the provided agricultural data. Then, based on the summary, predict the crop yield and provide actionable recommendations for the farmer.",
-  prompt: `Use the summarizeDataTool to summarize the following data: {{{agriculturalData}}}`,
+  system: "You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data. First, you MUST use the summarizeDataTool to get a summary of the provided agricultural data. Then, based on the summary returned by the tool, predict the crop yield and provide actionable recommendations for the farmer. Do not use the raw data directly.",
+  prompt: `Please summarize and then predict the yield for the following data: {{{agriculturalData}}}`,
 });
 
 const predictYieldFlow = ai.defineFlow(
@@ -44,8 +44,11 @@ const predictYieldFlow = ai.defineFlow(
     inputSchema: PredictYieldInputSchema,
     outputSchema: PredictYieldOutputSchema,
   },
-  async input => {
+  async (input) => {
     const {output} = await predictYieldPrompt(input);
-    return output!;
+    if (!output) {
+      throw new Error('The AI model failed to produce an output.');
+    }
+    return output;
   }
 );

@@ -31,12 +31,14 @@ Data:
 export const summarizeDataTool = ai.defineTool(
   {
     name: 'summarizeDataTool',
-    description: 'Summarizes large agricultural data sets into key insights. Can be called multiple times for chunks of data.',
-    inputSchema: SummarizeDataInputSchema,
+    description: 'Summarizes large agricultural data sets into key insights. This MUST be called before making a yield prediction.',
+    inputSchema: z.object({
+      agriculturalData: z.string().describe("The raw agricultural data in CSV format.")
+    }),
     outputSchema: SummarizeDataOutputSchema,
   },
   async (input) => {
-    const { output } = await summarizeDataPrompt({ data: input.data });
+    const { output } = await summarizeDataPrompt({ data: input.agriculturalData });
     if (!output) {
       throw new Error('Failed to get a summary from the AI model.');
     }

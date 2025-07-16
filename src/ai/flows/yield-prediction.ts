@@ -10,7 +10,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { summarizeDataTool } from '@/ai/tools/summarize-data';
 
 const PredictYieldInputSchema = z.object({
   agriculturalData: z
@@ -31,12 +30,18 @@ export async function predictYield(input: PredictYieldInput): Promise<PredictYie
 
 const predictYieldPrompt = ai.definePrompt({
   name: 'predictYieldPrompt',
-  tools: [summarizeDataTool],
+  input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
-  system: `You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data.
-If you have not been given a data summary, you MUST call the \`summarizeDataTool\` with the \`agriculturalData\` to get a concise summary.
-After receiving the summary from the tool, you MUST use that summary to predict the crop yield.
-Finally, provide actionable recommendations for the farmer based on your prediction and the data summary.`,
+  prompt: `You are an expert agriculture advisor and data analyst.
+Your task is to predict crop yield based on the provided agricultural data in CSV format.
+
+1.  First, analyze the provided data to understand its key statistical properties and trends. Do not output this summary, use it for your internal reasoning.
+2.  Based on your analysis, predict the crop yield in tons.
+3.  Provide a set of actionable recommendations for the farmer based on your prediction and the data you analyzed.
+
+Data:
+{{{agriculturalData}}}
+`,
 });
 
 const predictYieldFlow = ai.defineFlow(
@@ -46,29 +51,9 @@ const predictYieldFlow = ai.defineFlow(
     outputSchema: PredictYieldOutputSchema,
   },
   async (input) => {
-    // Step 1: First request to the model.
-    // The model will likely use the `summarizeDataTool` here.
-    let response = await predictYieldPrompt(input);
-
-    // Step 2: Loop through tool requests until the model provides the final answer.
-    while (true) {
-      const toolRequest = response.toolRequest;
-      if (!toolRequest) {
-        // No more tool requests, so the model has given its final answer.
-        break;
-      }
-
-      const toolResponse = await toolRequest.run();
-
-      // Step 3: Send the tool's response back to the model to continue the conversation.
-      response = await predictYieldPrompt(input, {
-        history: [response.request, response.response, toolResponse],
-      });
-    }
-
-    const output = response.output;
+    const {output} = await predictYieldPrompt(input);
     if (!output) {
-      throw new Error('The AI model failed to produce a valid output.');
+      throw new Error("The AI model failed to produce a valid output.");
     }
     return output;
   }

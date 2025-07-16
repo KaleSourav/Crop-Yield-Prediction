@@ -16,7 +16,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Progress } from '@/components/ui/progress';
 
 const formSchema = z.object({
   agriculturalDataFile: z.any().refine((file) => file, 'A data file is required.'),
@@ -99,8 +98,6 @@ export function YieldPredictionForm({
   onError,
 }: YieldPredictionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [progressLabel, setProgressLabel] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -113,21 +110,8 @@ export function YieldPredictionForm({
   const readFileAsText = (fileToRead: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
-      reader.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percentage = Math.round((event.loaded / event.total) * 100);
-          setProgress(percentage);
-        }
-      };
-      
-      reader.onload = () => {
-        setProgress(100);
-        resolve(reader.result as string);
-      };
-
+      reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);
-
       reader.readAsText(fileToRead);
     });
   }
@@ -140,15 +124,10 @@ export function YieldPredictionForm({
 
     setIsSubmitting(true);
     onLoading(true);
-    setProgress(0);
-    setProgressLabel('Reading file...');
 
     try {
       const fileContent = await readFileAsText(file);
       
-      setProgressLabel('Predicting yield...');
-      setProgress(0); // Reset for prediction progress if available, otherwise just shows 'Predicting...'
-
       const result = await getYieldPrediction({ agriculturalData: fileContent });
       
       if (result.success) {
@@ -164,8 +143,6 @@ export function YieldPredictionForm({
     } finally {
       setIsSubmitting(false);
       onLoading(false);
-      setProgress(0);
-      setProgressLabel('');
     }
   };
 
@@ -185,13 +162,6 @@ export function YieldPredictionForm({
             </FormItem>
           )}
         />
-        
-        {isSubmitting && (
-          <div className="space-y-2">
-            <FormLabel>{`${progressLabel} ${progress > 0 ? Math.round(progress) + '%' : ''}`}</FormLabel>
-            <Progress value={progress} />
-          </div>
-        )}
         
         <Button type="submit" className="w-full text-lg py-6" disabled={isSubmitting || !file}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

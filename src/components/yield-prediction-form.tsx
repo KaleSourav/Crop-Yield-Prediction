@@ -51,7 +51,7 @@ const FileUpload = ({ field, setFile, disabled }: { field: any, setFile: (file: 
 
   return (
     <div
-      className={`relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary border-border transition-all duration-300 ${!disabled ? 'cursor-pointer hover:border-primary hover:bg-primary/10' : 'cursor-not-allowed opacity-50'}`}
+      className={`relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary transition-all duration-300 ${!disabled ? 'cursor-pointer hover:border-primary hover:bg-primary/5' : 'cursor-not-allowed opacity-50'}`}
       onClick={() => !disabled && inputRef.current?.click()}
     >
       <input

@@ -68,7 +68,7 @@ export default function Home() {
         </div>
 
         <Tabs defaultValue="recommendations" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto bg-card border border-border">
+          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto bg-muted border-border">
             <TabsTrigger value="recommendations">Personalized Recommendations</TabsTrigger>
             <TabsTrigger value="prediction">Yield Prediction</TabsTrigger>
           </TabsList>
@@ -97,17 +97,17 @@ export default function Home() {
                 ) : recommendations ? (
                   <div className="space-y-4">
                     <RecommendationCard
-                      icon={<Droplets className="h-8 w-8 text-blue-400" />}
+                      icon={<Droplets className="h-8 w-8 text-blue-500" />}
                       title="Irrigation"
                       description={recommendations.irrigationRecommendation}
                     />
                     <RecommendationCard
-                      icon={<Leaf className="h-8 w-8 text-green-400" />}
+                      icon={<Leaf className="h-8 w-8 text-green-500" />}
                       title="Fertilization"
                       description={recommendations.fertilizationRecommendation}
                     />
                     <RecommendationCard
-                      icon={<CalendarDays className="h-8 w-8 text-amber-400" />}
+                      icon={<CalendarDays className="h-8 w-8 text-amber-500" />}
                       title="Planting Time"
                       description={recommendations.plantingTimeRecommendation}
                     />
@@ -153,7 +153,7 @@ export default function Home() {
                   </div>
                 ) : prediction ? (
                   <div className="space-y-6">
-                    <Card className="bg-secondary border-border">
+                    <Card className="bg-secondary/50 border-border">
                       <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
                           <LineChart className="h-10 w-10 text-primary" />
@@ -164,10 +164,10 @@ export default function Home() {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="bg-secondary border-border">
+                    <Card className="bg-secondary/50 border-border">
                       <CardContent className="pt-6">
                       <div className="flex items-start gap-4">
-                        <MessageSquareQuote className="h-8 w-8 text-accent" />
+                        <MessageSquareQuote className="h-8 w-8 text-primary" />
                         <div>
                           <p className="text-sm text-muted-foreground">Recommendations</p>
                           <p className="text-base">{prediction.recommendations}</p>

@@ -26,8 +26,11 @@ export const summarizeDataTool = ai.defineTool(
   },
   async (input) => {
     const { text } = await ai.generate({
-      prompt: summarizeDataPrompt.replace('{{{data}}}', input.data),
-      model: 'googleai/gemini-2.0-flash'
+      prompt: summarizeDataPrompt,
+      model: 'googleai/gemini-2.0-flash',
+      input: {
+        data: input.data
+      }
     });
     return { summary: text };
   }

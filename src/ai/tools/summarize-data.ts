@@ -15,9 +15,15 @@ const summarizeDataPrompt = ai.definePrompt({
   name: 'summarizeDataPrompt',
   input: { schema: SummarizeDataInputSchema },
   output: { schema: SummarizeDataOutputSchema },
-  prompt: `You are an expert data analyst. Summarize the following agricultural data (in CSV format).
-Focus on key statistics (mean, median, std dev), trends over time, and potential correlations between weather, soil, and yield.
-Keep the summary concise and focused on what would be needed to predict future yield.
+  prompt: `You are an expert data analyst. You will be given a large dataset of agricultural data in CSV format.
+Your task is to provide a very concise summary of the key statistical properties of this data. Do not output the raw data.
+Focus on:
+1.  Overall dataset size (rows, columns).
+2.  For each numerical column (like temperature, rainfall, yield, soil metrics): calculate the mean, median, standard deviation, min, and max.
+3.  Identify the time period covered by the data if available.
+4.  Briefly mention any obvious strong positive or negative correlations between columns (e.g., "rainfall is positively correlated with yield").
+Keep the entire summary under 500 words. This summary will be used by another AI to predict future yield, so only include the most critical information for that task.
+
 Data:
 {{{data}}}`,
 });
@@ -30,7 +36,7 @@ export const summarizeDataTool = ai.defineTool(
     outputSchema: SummarizeDataOutputSchema,
   },
   async (input) => {
-    const { output } = await summarizeDataPrompt(input);
+    const { output } = await summarizeDataPrompt({ data: input.data });
     if (!output) {
       throw new Error('Failed to get a summary from the AI model.');
     }

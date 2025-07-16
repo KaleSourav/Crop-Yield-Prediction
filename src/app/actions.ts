@@ -4,6 +4,10 @@ import {
   personalizedRecommendations,
   type PersonalizedRecommendationsInput,
 } from '@/ai/flows/personalized-recommendations';
+import {
+  predictYield,
+  type PredictYieldInput,
+} from '@/ai/flows/yield-prediction';
 import { PersonalizedRecommendationsInputSchema } from '@/ai/schemas';
 
 export async function getPersonalizedRecommendations(
@@ -24,6 +28,18 @@ export async function getPersonalizedRecommendations(
     return {
       failure:
         'Failed to get recommendations from AI. Please try again later.',
+    };
+  }
+}
+
+export async function getYieldPrediction(input: PredictYieldInput) {
+  try {
+    const result = await predictYield(input);
+    return { success: result };
+  } catch (e) {
+    console.error(e);
+    return {
+      failure: 'Failed to get prediction from AI. Please try again later.',
     };
   }
 }

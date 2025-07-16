@@ -1,0 +1,190 @@
+'use client';
+
+import { useState, useRef } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, UploadCloud, File as FileIcon, X } from 'lucide-react';
+import { getYieldPrediction } from '@/app/actions';
+import { PredictYieldOutput } from '@/ai/flows/yield-prediction';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+const formSchema = z.object({
+  cropYieldData: z.any().refine((file) => file, 'File is required.'),
+  soilQualityData: z.any().refine((file) => file, 'File is required.'),
+  weatherData: z.any().refine((file) => file, 'File is required.'),
+});
+
+type YieldPredictionFormProps = {
+  onResults: (data: PredictYieldOutput | null) => void;
+  onLoading: (isLoading: boolean) => void;
+  onError: (error: string) => void;
+};
+
+const fileToDataURI = (file: File) => {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+const FileUpload = ({ field }: { field: any }) => {
+  const [fileName, setFileName] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setFileName(file.name);
+      field.onChange(file);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setFileName(null);
+    field.onChange(null);
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div
+      className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-card transition-colors"
+      onClick={() => inputRef.current?.click()}
+    >
+      <input
+        type="file"
+        ref={inputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept=".csv,.json,.txt"
+      />
+      {fileName ? (
+        <div className="flex flex-col items-center text-center p-4">
+          <FileIcon className="h-8 w-8 text-primary" />
+          <p className="mt-2 text-sm font-medium truncate max-w-full">{fileName}</p>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemoveFile();
+            }}
+            className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center text-center">
+          <UploadCloud className="h-8 w-8 text-muted-foreground" />
+          <p className="mt-2 text-sm text-muted-foreground">
+            <span className="font-semibold">Click to upload</span> or drag and drop
+          </p>
+          <p className="text-xs text-muted-foreground">CSV, JSON, or TXT</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export function YieldPredictionForm({
+  onResults,
+  onLoading,
+  onError,
+}: YieldPredictionFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    onLoading(true);
+
+    try {
+      const [cropYieldData, soilQualityData, weatherData] = await Promise.all([
+        fileToDataURI(values.cropYieldData),
+        fileToDataURI(values.soilQualityData),
+        fileToDataURI(values.weatherData),
+      ]);
+      
+      const result = await getYieldPrediction({ cropYieldData, soilQualityData, weatherData });
+      
+      if (result.success) {
+        onResults(result.success);
+      } else {
+        onError(result.failure || 'An unknown error occurred.');
+        onResults(null);
+      }
+    } catch (error) {
+      onError('Failed to process files. Please try again.');
+      onResults(null);
+    }
+
+    setIsSubmitting(false);
+    onLoading(false);
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="cropYieldData"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Crop Yield Data</FormLabel>
+              <FormControl>
+                <FileUpload field={field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="soilQualityData"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Soil Quality Data</FormLabel>
+              <FormControl>
+                <FileUpload field={field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="weatherData"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Weather Data</FormLabel>
+              <FormControl>
+                <FileUpload field={field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" className="w-full text-lg py-6" disabled={isSubmitting}>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? 'Predicting...' : 'Predict Yield'}
+        </Button>
+      </form>
+    </Form>
+  );
+}

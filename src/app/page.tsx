@@ -5,21 +5,31 @@ import Image from 'next/image';
 import {
   PersonalizedRecommendationsOutput,
 } from '@/ai/flows/personalized-recommendations';
+import { PredictYieldOutput } from '@/ai/flows/yield-prediction';
 import { Header } from '@/components/header';
 import { CropcastForm } from '@/components/cropcast-form';
 import { RecommendationCard } from '@/components/recommendation-card';
+import { YieldPredictionForm } from '@/components/yield-prediction-form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Droplets, Leaf, CalendarDays } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Droplets, Leaf, CalendarDays, LineChart, MessageSquareQuote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] =
     useState<PersonalizedRecommendationsOutput | null>(null);
+  const [prediction, setPrediction] = useState<PredictYieldOutput | null>(null);
   const { toast } = useToast();
 
-  const handleResults = (data: PersonalizedRecommendationsOutput | null) => {
+  const handleRecResults = (data: PersonalizedRecommendationsOutput | null) => {
     setRecommendations(data);
+    setLoading(false);
+  };
+  
+  const handlePredResults = (data: PredictYieldOutput | null) => {
+    setPrediction(data);
     setLoading(false);
   };
 
@@ -27,6 +37,7 @@ export default function Home() {
     setLoading(isLoading);
     if (isLoading) {
       setRecommendations(null);
+      setPrediction(null);
     }
   };
 
@@ -38,6 +49,7 @@ export default function Home() {
     });
     setLoading(false);
     setRecommendations(null);
+    setPrediction(null);
   };
 
   return (
@@ -45,7 +57,7 @@ export default function Home() {
       <Header />
       <main className="flex-grow container mx-auto p-4 md:p-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
             Welcome to CropCast
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -55,62 +67,134 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
-          <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold font-headline mb-6">
-              Your Farm&apos;s Data
-            </h2>
-            <CropcastForm
-              onResults={handleResults}
-              onLoading={handleLoading}
-              onError={handleError}
-            />
-          </div>
-          <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg min-h-[400px]">
-            <h2 className="text-2xl font-bold font-headline mb-6">
-              AI-Powered Recommendations
-            </h2>
-            {loading ? (
-              <div className="space-y-4 pt-2">
-                <Skeleton className="h-28 w-full rounded-lg" />
-                <Skeleton className="h-28 w-full rounded-lg" />
-                <Skeleton className="h-28 w-full rounded-lg" />
-              </div>
-            ) : recommendations ? (
-              <div className="space-y-4">
-                <RecommendationCard
-                  icon={<Droplets className="h-8 w-8 text-blue-500" />}
-                  title="Irrigation"
-                  description={recommendations.irrigationRecommendation}
-                />
-                <RecommendationCard
-                  icon={<Leaf className="h-8 w-8 text-green-500" />}
-                  title="Fertilization"
-                  description={recommendations.fertilizationRecommendation}
-                />
-                <RecommendationCard
-                  icon={<CalendarDays className="h-8 w-8 text-amber-600" />}
-                  title="Planting Time"
-                  description={recommendations.plantingTimeRecommendation}
+        <Tabs defaultValue="recommendations" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto bg-primary/10">
+            <TabsTrigger value="recommendations">Personalized Recommendations</TabsTrigger>
+            <TabsTrigger value="prediction">Yield Prediction</TabsTrigger>
+          </TabsList>
+          <TabsContent value="recommendations">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start mt-8">
+              <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-bold mb-6">
+                  Your Farm&apos;s Data
+                </h2>
+                <CropcastForm
+                  onResults={handleRecResults}
+                  onLoading={handleLoading}
+                  onError={handleError}
                 />
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full py-8">
-                <Image
-                  src="https://placehold.co/400x300.png"
-                  alt="An illustration of a farm with data analytics overlay"
-                  width={400}
-                  height={300}
-                  className="rounded-lg mb-4 object-cover"
-                  data-ai-hint="agriculture technology"
-                />
-                <p className="mt-4 text-lg">
-                  Your personalized insights will appear here.
-                </p>
+              <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg min-h-[400px]">
+                <h2 className="text-2xl font-bold mb-6">
+                  AI-Powered Recommendations
+                </h2>
+                {loading ? (
+                  <div className="space-y-4 pt-2">
+                    <Skeleton className="h-28 w-full rounded-lg" />
+                    <Skeleton className="h-28 w-full rounded-lg" />
+                    <Skeleton className="h-28 w-full rounded-lg" />
+                  </div>
+                ) : recommendations ? (
+                  <div className="space-y-4">
+                    <RecommendationCard
+                      icon={<Droplets className="h-8 w-8 text-blue-500" />}
+                      title="Irrigation"
+                      description={recommendations.irrigationRecommendation}
+                    />
+                    <RecommendationCard
+                      icon={<Leaf className="h-8 w-8 text-green-500" />}
+                      title="Fertilization"
+                      description={recommendations.fertilizationRecommendation}
+                    />
+                    <RecommendationCard
+                      icon={<CalendarDays className="h-8 w-8 text-amber-600" />}
+                      title="Planting Time"
+                      description={recommendations.plantingTimeRecommendation}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full py-8">
+                    <Image
+                      src="https://placehold.co/400x300.png"
+                      alt="An illustration of a farm with data analytics overlay"
+                      width={400}
+                      height={300}
+                      className="rounded-lg mb-4 object-cover"
+                      data-ai-hint="agriculture technology"
+                    />
+                    <p className="mt-4 text-lg">
+                      Your personalized insights will appear here.
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="prediction">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start mt-8">
+              <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-bold mb-6">
+                  Historical Data
+                </h2>
+                <YieldPredictionForm
+                  onResults={handlePredResults}
+                  onLoading={handleLoading}
+                  onError={handleError}
+                />
+              </div>
+              <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg min-h-[400px]">
+                <h2 className="text-2xl font-bold mb-6">
+                  AI-Powered Prediction
+                </h2>
+                {loading ? (
+                  <div className="space-y-4 pt-2">
+                    <Skeleton className="h-24 w-full rounded-lg" />
+                    <Skeleton className="h-36 w-full rounded-lg" />
+                  </div>
+                ) : prediction ? (
+                  <div className="space-y-6">
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center gap-4">
+                          <LineChart className="h-10 w-10 text-primary" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Predicted Yield</p>
+                            <p className="text-3xl font-bold">{prediction.predictedYield.toLocaleString()} tons</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6">
+                      <div className="flex items-start gap-4">
+                        <MessageSquareQuote className="h-8 w-8 text-accent" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">Recommendations</p>
+                          <p className="text-base">{prediction.recommendations}</p>
+                        </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full py-8">
+                    <Image
+                      src="https://placehold.co/400x300.png"
+                      alt="An illustration of data charts and graphs"
+                      width={400}
+                      height={300}
+                      className="rounded-lg mb-4 object-cover"
+                      data-ai-hint="data charts"
+                    />
+                    <p className="mt-4 text-lg">
+                      Your yield prediction will appear here.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
       <footer className="text-center p-4 text-muted-foreground text-sm">
         <p>

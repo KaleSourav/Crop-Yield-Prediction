@@ -8,7 +8,6 @@ import { Loader2 } from 'lucide-react';
 
 import {
   type PersonalizedRecommendationsOutput,
-  type PersonalizedRecommendationsInput,
 } from '@/ai/flows/personalized-recommendations';
 import { PersonalizedRecommendationsInputSchema } from '@/ai/schemas';
 import { getPersonalizedRecommendations } from '@/app/actions';

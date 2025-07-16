@@ -13,10 +13,10 @@ export function RecommendationCard({
   description,
 }: RecommendationCardProps) {
   return (
-    <Card className="bg-background/30 hover:shadow-md transition-shadow duration-300">
+    <Card className="bg-background/30 hover:shadow-lg transition-shadow duration-300">
       <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
         <div className="flex-shrink-0">{icon}</div>
-        <CardTitle className="text-lg font-medium font-headline">
+        <CardTitle className="text-lg font-medium">
           {title}
         </CardTitle>
       </CardHeader>

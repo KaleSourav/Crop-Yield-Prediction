@@ -32,9 +32,10 @@ export async function predictYield(input: PredictYieldInput): Promise<PredictYie
 const prompt = ai.definePrompt({
   name: 'predictYieldPrompt',
   tools: [summarizeDataTool],
-  system: "You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data. First, use the summarizeDataTool to get a summary of the provided agricultural data. Then, based on the summary, predict the crop yield and provide actionable recommendations for the farmer.",
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
+  system: "You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data. First, use the summarizeDataTool to get a summary of the provided agricultural data. Then, based on the summary, predict the crop yield and provide actionable recommendations for the farmer.",
+  prompt: `Here is the agricultural data: {{{agriculturalData}}}`,
 });
 
 const predictYieldFlow = ai.defineFlow(

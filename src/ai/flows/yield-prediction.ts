@@ -1,4 +1,4 @@
-// src/ai/flows/yield-prediction.ts
+
 'use server';
 /**
  * @fileOverview A crop yield prediction AI agent.
@@ -35,11 +35,10 @@ const predictYieldPrompt = ai.definePrompt({
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
   system: `You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data.
-The user will provide a large string of agricultural data in CSV format.
-You MUST first call the \`summarizeDataTool\` with the entire \`agriculturalData\` string to get a concise summary of the key statistics, trends, and correlations.
+The user will provide a string of agricultural data.
+You MUST first call the \`summarizeDataTool\` with the \`agriculturalData\` to get a concise summary.
 After receiving the summary from the tool, you MUST use that summary to predict the crop yield.
-Finally, you will provide actionable recommendations for the farmer based on your prediction and the data summary.
-Do not use the raw data directly for the final prediction; use only the summary provided by the tool.`,
+Finally, provide actionable recommendations for the farmer based on your prediction and the data summary.`,
 });
 
 const predictYieldFlow = ai.defineFlow(

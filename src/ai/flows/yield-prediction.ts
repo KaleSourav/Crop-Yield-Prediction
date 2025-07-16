@@ -46,9 +46,14 @@ const prompt = ai.definePrompt({
   output: {schema: PredictYieldOutputSchema},
   prompt: `You are an expert agriculture advisor. Based on the historical crop yield data, soil quality data, and weather data provided, predict the crop yield and provide recommendations to the farmer.
 
-Crop Yield Data: {{media url=cropYieldData}}
-Soil Quality Data: {{media url=soilQualityData}}
-Weather Data: {{media url=weatherData}}`,
+Crop Yield Data:
+{{{cropYieldData}}}
+
+Soil Quality Data:
+{{{soilQualityData}}}
+
+Weather Data:
+{{{weatherData}}}`,
 });
 
 const predictYieldFlow = ai.defineFlow(

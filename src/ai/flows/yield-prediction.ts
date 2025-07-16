@@ -1,0 +1,64 @@
+// src/ai/flows/yield-prediction.ts
+'use server';
+/**
+ * @fileOverview A crop yield prediction AI agent.
+ *
+ * - predictYield - A function that handles the crop yield prediction process.
+ * - PredictYieldInput - The input type for the predictYield function.
+ * - PredictYieldOutput - The return type for the predictYield function.
+ */
+
+import {ai} from '@/ai/genkit';
+import {z} from 'genkit';
+
+const PredictYieldInputSchema = z.object({
+  cropYieldData: z
+    .string()
+    .describe(
+      'Historical crop yield data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>.'
+    ),
+  soilQualityData: z
+    .string()
+    .describe(
+      'Historical soil quality data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>.'
+    ),
+  weatherData: z
+    .string()
+    .describe(
+      'Historical weather data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>.'
+    ),
+});
+export type PredictYieldInput = z.infer<typeof PredictYieldInputSchema>;
+
+const PredictYieldOutputSchema = z.object({
+  predictedYield: z.number().describe('The predicted crop yield.'),
+  recommendations: z.string().describe('Recommendations for the farmer based on the prediction.'),
+});
+export type PredictYieldOutput = z.infer<typeof PredictYieldOutputSchema>;
+
+export async function predictYield(input: PredictYieldInput): Promise<PredictYieldOutput> {
+  return predictYieldFlow(input);
+}
+
+const prompt = ai.definePrompt({
+  name: 'predictYieldPrompt',
+  input: {schema: PredictYieldInputSchema},
+  output: {schema: PredictYieldOutputSchema},
+  prompt: `You are an expert agriculture advisor. Based on the historical crop yield data, soil quality data, and weather data provided, predict the crop yield and provide recommendations to the farmer.
+
+Crop Yield Data: {{media url=cropYieldData}}
+Soil Quality Data: {{media url=soilQualityData}}
+Weather Data: {{media url=weatherData}}`,
+});
+
+const predictYieldFlow = ai.defineFlow(
+  {
+    name: 'predictYieldFlow',
+    inputSchema: PredictYieldInputSchema,
+    outputSchema: PredictYieldOutputSchema,
+  },
+  async input => {
+    const {output} = await prompt(input);
+    return output!;
+  }
+);

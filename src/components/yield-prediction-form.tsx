@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, UploadCloud, File as FileIcon, X } from 'lucide-react';
@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -30,12 +29,12 @@ type YieldPredictionFormProps = {
   onError: (error: string) => void;
 };
 
-const fileToDataURI = (file: File) => {
+const fileToText = (file: File) => {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
-    reader.readAsDataURL(file);
+    reader.readAsText(file);
   });
 };
 
@@ -115,9 +114,9 @@ export function YieldPredictionForm({
 
     try {
       const [cropYieldData, soilQualityData, weatherData] = await Promise.all([
-        fileToDataURI(values.cropYieldData),
-        fileToDataURI(values.soilQualityData),
-        fileToDataURI(values.weatherData),
+        fileToText(values.cropYieldData),
+        fileToText(values.soilQualityData),
+        fileToText(values.weatherData),
       ]);
       
       const result = await getYieldPrediction({ cropYieldData, soilQualityData, weatherData });

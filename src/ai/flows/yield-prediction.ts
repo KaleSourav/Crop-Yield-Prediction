@@ -14,19 +14,13 @@ import {z} from 'genkit';
 const PredictYieldInputSchema = z.object({
   cropYieldData: z
     .string()
-    .describe(
-      'Historical crop yield data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>.'
-    ),
+    .describe('Historical crop yield data as a CSV text.'),
   soilQualityData: z
     .string()
-    .describe(
-      'Historical soil quality data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>.'
-    ),
+    .describe('Historical soil quality data as a CSV text.'),
   weatherData: z
     .string()
-    .describe(
-      'Historical weather data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>.'
-    ),
+    .describe('Historical weather data as a CSV text.'),
 });
 export type PredictYieldInput = z.infer<typeof PredictYieldInputSchema>;
 
@@ -44,15 +38,15 @@ const prompt = ai.definePrompt({
   name: 'predictYieldPrompt',
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
-  prompt: `You are an expert agriculture advisor. Based on the historical crop yield data, soil quality data, and weather data provided, predict the crop yield and provide recommendations to the farmer.
+  prompt: `You are an expert agriculture advisor. Based on the historical crop yield data, soil quality data, and weather data provided, predict the crop yield and provide recommendations to the farmer. The data is in CSV format.
 
-Crop Yield Data:
+Crop Yield Data (CSV):
 {{{cropYieldData}}}
 
-Soil Quality Data:
+Soil Quality Data (CSV):
 {{{soilQualityData}}}
 
-Weather Data:
+Weather Data (CSV):
 {{{weatherData}}}`,
 });
 

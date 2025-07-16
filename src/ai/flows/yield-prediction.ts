@@ -32,7 +32,11 @@ const prompt = ai.definePrompt({
   name: 'predictYieldPrompt',
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
-  prompt: `You are an expert agriculture advisor. Based on the provided agricultural data (which includes historical crop yield, soil quality, and weather data), predict the crop yield and provide recommendations to the farmer. The data is in CSV format.
+  prompt: `You are an expert agriculture advisor. Based on the provided agricultural data in CSV format, predict the crop yield and provide recommendations to the farmer.
+
+The data provided is a string containing data in CSV format. The CSV data includes columns for historical crop yield, soil quality metrics (like pH, nitrogen levels), and weather data (like rainfall, temperature).
+
+Your task is to analyze this data to identify trends and correlations, and then output a predicted yield figure and actionable recommendations for the farmer.
 
 Agricultural Data (CSV):
 {{{agriculturalData}}}`,

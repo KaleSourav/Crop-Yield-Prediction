@@ -12,15 +12,9 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const PredictYieldInputSchema = z.object({
-  cropYieldData: z
+  agriculturalData: z
     .string()
-    .describe('Historical crop yield data as a CSV text.'),
-  soilQualityData: z
-    .string()
-    .describe('Historical soil quality data as a CSV text.'),
-  weatherData: z
-    .string()
-    .describe('Historical weather data as a CSV text.'),
+    .describe('A string containing agricultural data, likely in CSV format, including crop yield, soil quality, and weather data.'),
 });
 export type PredictYieldInput = z.infer<typeof PredictYieldInputSchema>;
 
@@ -38,16 +32,10 @@ const prompt = ai.definePrompt({
   name: 'predictYieldPrompt',
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
-  prompt: `You are an expert agriculture advisor. Based on the historical crop yield data, soil quality data, and weather data provided, predict the crop yield and provide recommendations to the farmer. The data is in CSV format.
+  prompt: `You are an expert agriculture advisor. Based on the provided agricultural data (which includes historical crop yield, soil quality, and weather data), predict the crop yield and provide recommendations to the farmer. The data is in CSV format.
 
-Crop Yield Data (CSV):
-{{{cropYieldData}}}
-
-Soil Quality Data (CSV):
-{{{soilQualityData}}}
-
-Weather Data (CSV):
-{{{weatherData}}}`,
+Agricultural Data (CSV):
+{{{agriculturalData}}}`,
 });
 
 const predictYieldFlow = ai.defineFlow(

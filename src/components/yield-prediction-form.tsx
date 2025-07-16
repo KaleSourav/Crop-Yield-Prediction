@@ -18,9 +18,7 @@ import {
 } from '@/components/ui/form';
 
 const formSchema = z.object({
-  cropYieldData: z.any().refine((file) => file, 'File is required.'),
-  soilQualityData: z.any().refine((file) => file, 'File is required.'),
-  weatherData: z.any().refine((file) => file, 'File is required.'),
+  agriculturalData: z.any().refine((file) => file, 'A data file is required.'),
 });
 
 type YieldPredictionFormProps = {
@@ -91,7 +89,7 @@ const FileUpload = ({ field }: { field: any }) => {
           <p className="mt-2 text-sm text-muted-foreground">
             <span className="font-semibold">Click to upload</span> or drag and drop
           </p>
-          <p className="text-xs text-muted-foreground">CSV, JSON, or TXT</p>
+          <p className="text-xs text-muted-foreground">CSV, JSON, or TXT with all data</p>
         </div>
       )}
     </div>
@@ -113,13 +111,9 @@ export function YieldPredictionForm({
     onLoading(true);
 
     try {
-      const [cropYieldData, soilQualityData, weatherData] = await Promise.all([
-        fileToText(values.cropYieldData),
-        fileToText(values.soilQualityData),
-        fileToText(values.weatherData),
-      ]);
+      const agriculturalData = await fileToText(values.agriculturalData);
       
-      const result = await getYieldPrediction({ cropYieldData, soilQualityData, weatherData });
+      const result = await getYieldPrediction({ agriculturalData });
       
       if (result.success) {
         onResults(result.success);
@@ -128,7 +122,7 @@ export function YieldPredictionForm({
         onResults(null);
       }
     } catch (error) {
-      onError('Failed to process files. Please try again.');
+      onError('Failed to process the file. Please try again.');
       onResults(null);
     }
 
@@ -141,10 +135,10 @@ export function YieldPredictionForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="cropYieldData"
+          name="agriculturalData"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Crop Yield Data</FormLabel>
+              <FormLabel>Agricultural Data File</FormLabel>
               <FormControl>
                 <FileUpload field={field} />
               </FormControl>
@@ -152,33 +146,7 @@ export function YieldPredictionForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="soilQualityData"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Soil Quality Data</FormLabel>
-              <FormControl>
-                <FileUpload field={field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="weatherData"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Weather Data</FormLabel>
-              <FormControl>
-                <FileUpload field={field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        
         <Button type="submit" className="w-full text-lg py-6" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isSubmitting ? 'Predicting...' : 'Predict Yield'}

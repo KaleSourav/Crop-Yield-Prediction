@@ -20,8 +20,8 @@ const PredictYieldInputSchema = z.object({
 export type PredictYieldInput = z.infer<typeof PredictYieldInputSchema>;
 
 const PredictYieldOutputSchema = z.object({
-  predictedYield: z.number().describe('The predicted crop yield.'),
-  recommendations: z.string().describe('Recommendations for the farmer based on the prediction.'),
+  predictedYield: z.number().describe('The predicted crop yield in tons.'),
+  recommendations: z.string().describe('Actionable recommendations for the farmer based on the prediction and data summary.'),
 });
 export type PredictYieldOutput = z.infer<typeof PredictYieldOutputSchema>;
 
@@ -34,8 +34,12 @@ const predictYieldPrompt = ai.definePrompt({
   tools: [summarizeDataTool],
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
-  system: "You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data. First, you MUST use the summarizeDataTool to get a summary of the provided agricultural data. Then, based on the summary returned by the tool, predict the crop yield and provide actionable recommendations for the farmer. Do not use the raw data directly.",
-  prompt: `Please summarize and then predict the yield for the following data: {{{agriculturalData}}}`,
+  system: `You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data.
+The user will provide a large string of agricultural data in CSV format.
+You MUST first call the \`summarizeDataTool\` with the entire \`agriculturalData\` string to get a concise summary of the key statistics, trends, and correlations.
+After receiving the summary from the tool, you MUST use that summary to predict the crop yield.
+Finally, you will provide actionable recommendations for the farmer based on your prediction and the data summary.
+Do not use the raw data directly for the final prediction; use only the summary provided by the tool.`,
 });
 
 const predictYieldFlow = ai.defineFlow(

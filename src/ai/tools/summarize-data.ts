@@ -4,7 +4,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 const SummarizeDataInputSchema = z.object({
-  data: z.string().describe('A chunk of raw CSV data to be summarized.'),
+  agriculturalData: z.string().describe('A large string of raw CSV data to be summarized.'),
 });
 
 const SummarizeDataOutputSchema = z.object({
@@ -15,7 +15,7 @@ const summarizeDataPrompt = ai.definePrompt({
   name: 'summarizeDataPrompt',
   input: { schema: SummarizeDataInputSchema },
   output: { schema: SummarizeDataOutputSchema },
-  prompt: `You are an expert data analyst. You will be given a large dataset of agricultural data in CSV format, possibly in chunks.
+  prompt: `You are an expert data analyst. You will be given a large dataset of agricultural data in CSV format.
 Your task is to provide a very concise summary of the key statistical properties of this data. Do not output the raw data.
 Focus on:
 1.  Overall dataset size (rows, columns).
@@ -25,20 +25,18 @@ Focus on:
 Keep the entire summary under 500 words. This summary will be used by another AI to predict future yield, so only include the most critical information for that task.
 
 Data:
-{{{data}}}`,
+{{{agriculturalData}}}`,
 });
 
 export const summarizeDataTool = ai.defineTool(
   {
     name: 'summarizeDataTool',
     description: 'Summarizes large agricultural data sets into key insights. This MUST be called before making a yield prediction.',
-    inputSchema: z.object({
-      agriculturalData: z.string().describe("The raw agricultural data in CSV format.")
-    }),
+    inputSchema: SummarizeDataInputSchema,
     outputSchema: SummarizeDataOutputSchema,
   },
   async (input) => {
-    const { output } = await summarizeDataPrompt({ data: input.agriculturalData });
+    const { output } = await summarizeDataPrompt(input);
     if (!output) {
       throw new Error('Failed to get a summary from the AI model.');
     }

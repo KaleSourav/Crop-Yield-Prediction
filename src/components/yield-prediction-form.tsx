@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, UploadCloud, File as FileIcon, X } from 'lucide-react';
-import Papa from 'papaparse';
 import { getYieldPrediction } from '@/app/actions';
 import { PredictYieldOutput } from '@/ai/flows/yield-prediction';
 import { Button } from '@/components/ui/button';
@@ -87,7 +86,7 @@ const FileUpload = ({ field, setFile, disabled }: { field: any, setFile: (file: 
           <p className="mt-2 text-sm text-muted-foreground">
             <span className="font-semibold">Click to upload</span> or drag and drop
           </p>
-          <p className="text-xs text-muted-foreground">CSV file up to 100MB</p>
+          <p className="text-xs text-muted-foreground">CSV file</p>
         </div>
       )}
     </div>
@@ -100,7 +99,8 @@ export function YieldPredictionForm({
   onError,
 }: YieldPredictionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [progressLabel, setProgressLabel] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -110,38 +110,25 @@ export function YieldPredictionForm({
     },
   });
 
-  const readFileAsText = (file: File): Promise<string> => {
+  const readFileAsText = (fileToRead: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-      let content = '';
-      let chunks = 0;
-      const chunkSize = 1024 * 1024 * 5; // 5MB chunks
-      const totalChunks = Math.ceil(file.size / chunkSize);
-
-      const readChunk = (offset: number) => {
-        const reader = new FileReader();
-        const slice = file.slice(offset, offset + chunkSize);
-
-        reader.onload = (e) => {
-          if (e.target?.result) {
-            content += e.target.result;
-            chunks++;
-            setUploadProgress(Math.round((chunks / totalChunks) * 100));
-            if (offset + chunkSize < file.size) {
-              readChunk(offset + chunkSize);
-            } else {
-              resolve(content);
-            }
-          }
-        };
-
-        reader.onerror = (e) => {
-          reject(new Error('Failed to read file: ' + e));
-        };
-        
-        reader.readAsText(slice);
+      const reader = new FileReader();
+      
+      reader.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentage = Math.round((event.loaded / event.total) * 100);
+          setProgress(percentage);
+        }
+      };
+      
+      reader.onload = () => {
+        setProgress(100);
+        resolve(reader.result as string);
       };
 
-      readChunk(0);
+      reader.onerror = (error) => reject(error);
+
+      reader.readAsText(fileToRead);
     });
   }
 
@@ -153,11 +140,14 @@ export function YieldPredictionForm({
 
     setIsSubmitting(true);
     onLoading(true);
-    setUploadProgress(0);
+    setProgress(0);
+    setProgressLabel('Reading file...');
 
     try {
       const fileContent = await readFileAsText(file);
-      setUploadProgress(100);
+      
+      setProgressLabel('Predicting yield...');
+      setProgress(0); // Reset for prediction progress if available, otherwise just shows 'Predicting...'
 
       const result = await getYieldPrediction({ agriculturalData: fileContent });
       
@@ -174,6 +164,8 @@ export function YieldPredictionForm({
     } finally {
       setIsSubmitting(false);
       onLoading(false);
+      setProgress(0);
+      setProgressLabel('');
     }
   };
 
@@ -196,14 +188,14 @@ export function YieldPredictionForm({
         
         {isSubmitting && (
           <div className="space-y-2">
-            <FormLabel>{`Processing file... ${Math.round(uploadProgress)}%`}</FormLabel>
-            <Progress value={uploadProgress} />
+            <FormLabel>{`${progressLabel} ${progress > 0 ? Math.round(progress) + '%' : ''}`}</FormLabel>
+            <Progress value={progress} />
           </div>
         )}
         
         <Button type="submit" className="w-full text-lg py-6" disabled={isSubmitting || !file}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Predicting...' : 'Predict Yield'}
+          {isSubmitting ? 'Processing...' : 'Predict Yield'}
         </Button>
       </form>
     </Form>

@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/form';
 
 const formSchema = z.object({
-  agriculturalData: z.any().refine((file) => file, 'A data file is required.'),
+  agriculturalDataFile: z.any().refine((file) => file, 'A data file is required.'),
 });
 
 type YieldPredictionFormProps = {
@@ -27,8 +27,8 @@ type YieldPredictionFormProps = {
   onError: (error: string) => void;
 };
 
-const fileToText = (file: File) => {
-  return new Promise<string>((resolve, reject) => {
+const fileToText = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
@@ -111,7 +111,7 @@ export function YieldPredictionForm({
     onLoading(true);
 
     try {
-      const agriculturalData = await fileToText(values.agriculturalData);
+      const agriculturalData = await fileToText(values.agriculturalDataFile);
       
       const result = await getYieldPrediction({ agriculturalData });
       
@@ -135,7 +135,7 @@ export function YieldPredictionForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="agriculturalData"
+          name="agriculturalDataFile"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Agricultural Data File</FormLabel>

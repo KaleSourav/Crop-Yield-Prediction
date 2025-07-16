@@ -14,7 +14,7 @@ import {z} from 'genkit';
 const PredictYieldInputSchema = z.object({
   agriculturalData: z
     .string()
-    .describe('A string containing agricultural data, likely in CSV format, including crop yield, soil quality, and weather data.'),
+    .describe('A string containing agricultural data in CSV format, including historical crop yield, soil quality, and weather data.'),
 });
 export type PredictYieldInput = z.infer<typeof PredictYieldInputSchema>;
 

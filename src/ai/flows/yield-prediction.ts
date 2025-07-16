@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { summarizeDataTool } from '@/ai/tools/summarize-data';
 
 const PredictYieldInputSchema = z.object({
   agriculturalData: z
@@ -30,16 +31,10 @@ export async function predictYield(input: PredictYieldInput): Promise<PredictYie
 
 const prompt = ai.definePrompt({
   name: 'predictYieldPrompt',
+  tools: [summarizeDataTool],
+  system: "You are an expert agriculture advisor. Your goal is to predict crop yield based on provided data. First, use the summarizeDataTool to get a summary of the provided agricultural data. Then, based on the summary, predict the crop yield and provide actionable recommendations for the farmer.",
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
-  prompt: `You are an expert agriculture advisor. Based on the provided agricultural data in CSV format, predict the crop yield and provide recommendations to the farmer.
-
-The data provided is a string containing data in CSV format. The CSV data includes columns for historical crop yield, soil quality metrics (like pH, nitrogen levels), and weather data (like rainfall, temperature).
-
-Your task is to analyze this data to identify trends and correlations, and then output a predicted yield figure and actionable recommendations for the farmer.
-
-Agricultural Data (CSV):
-{{{agriculturalData}}}`,
 });
 
 const predictYieldFlow = ai.defineFlow(

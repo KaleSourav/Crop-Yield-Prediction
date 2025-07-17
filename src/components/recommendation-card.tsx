@@ -13,7 +13,7 @@ export function RecommendationCard({
   description,
 }: RecommendationCardProps) {
   return (
-    <Card className="bg-secondary/50 border-border hover:border-primary hover:bg-secondary transition-all duration-300 group shadow-sm">
+    <Card className="bg-card/60 backdrop-blur-sm border-border/20 hover:border-primary/40 hover:bg-card/90 transition-all duration-300 group shadow-sm hover:shadow-lg">
       <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
         <div className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110">{icon}</div>
         <CardTitle className="text-lg font-medium text-foreground">

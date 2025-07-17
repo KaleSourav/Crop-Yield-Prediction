@@ -53,7 +53,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background font-body text-foreground">
+    <div className="flex flex-col min-h-screen bg-background/80 font-body text-foreground">
       <Header />
       <main className="flex-grow container mx-auto p-4 md:p-8">
         <div className="text-center mb-12">
@@ -68,13 +68,13 @@ export default function Home() {
         </div>
 
         <Tabs defaultValue="recommendations" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto bg-muted border-border">
+          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto bg-card border-border shadow-inner">
             <TabsTrigger value="recommendations">Personalized Recommendations</TabsTrigger>
             <TabsTrigger value="prediction">Yield Prediction</TabsTrigger>
           </TabsList>
           <TabsContent value="recommendations">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start mt-8">
-              <div className="bg-card p-6 md:p-8 rounded-xl border border-border shadow-lg">
+              <div className="bg-card/80 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-border/20 shadow-lg transition-all hover:shadow-primary/20 hover:border-primary/40 duration-300">
                 <h2 className="text-2xl font-bold mb-6 text-primary">
                   Your Farm&apos;s Data
                 </h2>
@@ -84,15 +84,15 @@ export default function Home() {
                   onError={handleError}
                 />
               </div>
-              <div className="bg-card p-6 md:p-8 rounded-xl border border-border shadow-lg min-h-[400px]">
+              <div className="bg-card/80 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-border/20 shadow-lg min-h-[400px] transition-all hover:shadow-primary/20 hover:border-primary/40 duration-300">
                 <h2 className="text-2xl font-bold mb-6 text-primary">
                   AI-Powered Recommendations
                 </h2>
                 {loading ? (
                   <div className="space-y-4 pt-2">
-                    <Skeleton className="h-28 w-full rounded-lg bg-secondary" />
-                    <Skeleton className="h-28 w-full rounded-lg bg-secondary" />
-                    <Skeleton className="h-28 w-full rounded-lg bg-secondary" />
+                    <Skeleton className="h-28 w-full rounded-lg bg-secondary/50" />
+                    <Skeleton className="h-28 w-full rounded-lg bg-secondary/50" />
+                    <Skeleton className="h-28 w-full rounded-lg bg-secondary/50" />
                   </div>
                 ) : recommendations ? (
                   <div className="space-y-4">
@@ -119,7 +119,7 @@ export default function Home() {
                       alt="An illustration of a farm with data analytics overlay"
                       width={400}
                       height={300}
-                      className="rounded-lg mb-4 object-cover opacity-30"
+                      className="rounded-lg mb-4 object-cover opacity-10"
                       data-ai-hint="agriculture technology"
                     />
                     <p className="mt-4 text-lg">
@@ -132,7 +132,7 @@ export default function Home() {
           </TabsContent>
           <TabsContent value="prediction">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start mt-8">
-              <div className="bg-card p-6 md:p-8 rounded-xl border border-border shadow-lg">
+              <div className="bg-card/80 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-border/20 shadow-lg transition-all hover:shadow-primary/20 hover:border-primary/40 duration-300">
                 <h2 className="text-2xl font-bold mb-6 text-primary">
                   Historical Data
                 </h2>
@@ -142,18 +142,18 @@ export default function Home() {
                   onError={handleError}
                 />
               </div>
-              <div className="bg-card p-6 md:p-8 rounded-xl border border-border shadow-lg min-h-[400px]">
+              <div className="bg-card/80 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-border/20 shadow-lg min-h-[400px] transition-all hover:shadow-primary/20 hover:border-primary/40 duration-300">
                 <h2 className="text-2xl font-bold mb-6 text-primary">
                   AI-Powered Prediction
                 </h2>
                 {loading ? (
                   <div className="space-y-4 pt-2">
-                    <Skeleton className="h-24 w-full rounded-lg bg-secondary" />
-                    <Skeleton className="h-36 w-full rounded-lg bg-secondary" />
+                    <Skeleton className="h-24 w-full rounded-lg bg-secondary/50" />
+                    <Skeleton className="h-36 w-full rounded-lg bg-secondary/50" />
                   </div>
                 ) : prediction ? (
                   <div className="space-y-6">
-                    <Card className="bg-secondary/50 border-border">
+                    <Card className="bg-secondary/20 border-border/20">
                       <CardContent className="pt-6">
                         <div className="flex items-center gap-4">
                           <LineChart className="h-10 w-10 text-primary" />
@@ -164,7 +164,7 @@ export default function Home() {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="bg-secondary/50 border-border">
+                    <Card className="bg-secondary/20 border-border/20">
                       <CardContent className="pt-6">
                       <div className="flex items-start gap-4">
                         <MessageSquareQuote className="h-8 w-8 text-primary" />
@@ -183,7 +183,7 @@ export default function Home() {
                       alt="An illustration of data charts and graphs"
                       width={400}
                       height={300}
-                      className="rounded-lg mb-4 object-cover opacity-30"
+                      className="rounded-lg mb-4 object-cover opacity-10"
                       data-ai-hint="data charts"
                     />
                     <p className="mt-4 text-lg">

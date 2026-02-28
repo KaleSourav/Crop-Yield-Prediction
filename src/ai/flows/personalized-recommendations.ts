@@ -24,7 +24,6 @@ const prompt = ai.definePrompt({
   name: 'personalizedRecommendationsPrompt',
   input: {schema: PersonalizedRecommendationsInputSchema},
   output: {schema: PersonalizedRecommendationsOutputSchema},
-  model: 'googleai/gemini-1.5-flash',
   config: {
     safetySettings: [
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
@@ -59,7 +58,7 @@ const personalizedRecommendationsFlow = ai.defineFlow(
     try {
       const {output} = await prompt(input);
       if (!output) {
-        throw new Error("The AI failed to generate recommendations. Please verify your API key and network connection.");
+        throw new Error("The AI failed to generate recommendations. Please check your network connection and try again.");
       }
       return output;
     } catch (error: any) {

@@ -31,7 +31,6 @@ const predictYieldPrompt = ai.definePrompt({
   name: 'predictYieldPrompt',
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
-  model: 'googleai/gemini-1.5-flash',
   config: {
     safetySettings: [
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
@@ -44,8 +43,9 @@ const predictYieldPrompt = ai.definePrompt({
   prompt: `You are an expert agriculture advisor and data analyst.
 Analyze the provided agricultural data in CSV format. 
 
-1. Predict the crop yield in tons.
-2. Provide actionable recommendations based on the trends found in the data.
+1. Internally summarize the trends in the data.
+2. Predict the crop yield in tons based on these trends.
+3. Provide actionable recommendations for the farmer.
 
 Return only the valid JSON response.
 
@@ -64,7 +64,7 @@ const predictYieldFlow = ai.defineFlow(
     try {
       const {output} = await predictYieldPrompt(input);
       if (!output) {
-        throw new Error("The AI model failed to produce a valid yield prediction. Please verify your API key.");
+        throw new Error("The AI model failed to produce a valid yield prediction. Please check your data and try again.");
       }
       return output;
     } catch (error: any) {

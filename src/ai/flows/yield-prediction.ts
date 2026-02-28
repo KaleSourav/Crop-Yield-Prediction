@@ -1,10 +1,7 @@
+
 'use server';
 /**
  * @fileOverview A crop yield prediction AI agent.
- *
- * - predictYield - A function that handles the crop yield prediction process.
- * - PredictYieldInput - The input type for the predictYield function.
- * - PredictYieldOutput - The return type for the predictYield function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -64,7 +61,7 @@ const predictYieldFlow = ai.defineFlow(
     try {
       const {output} = await predictYieldPrompt(input);
       if (!output) {
-        throw new Error("The AI model failed to produce a valid yield prediction. Please check your data and try again.");
+        throw new Error("The AI model failed to produce a valid yield prediction. This could be due to a rate limit or a service error. Please wait a moment and try again.");
       }
       return output;
     } catch (error: any) {

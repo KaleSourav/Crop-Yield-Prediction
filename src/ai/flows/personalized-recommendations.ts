@@ -1,10 +1,7 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for providing personalized agricultural recommendations to farmers.
- *
- * - personalizedRecommendations - A function that takes farm data as input and returns personalized recommendations.
- * - PersonalizedRecommendationsInput - The input type for the personalizedRecommendations function.
- * - PersonalizedRecommendationsOutput - The return type for the personalizedRecommendations function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -58,7 +55,7 @@ const personalizedRecommendationsFlow = ai.defineFlow(
     try {
       const {output} = await prompt(input);
       if (!output) {
-        throw new Error("The AI failed to generate recommendations. Please check your network connection and try again.");
+        throw new Error("The AI failed to generate recommendations. This may be due to a temporary service interruption. Please try again in a moment.");
       }
       return output;
     } catch (error: any) {

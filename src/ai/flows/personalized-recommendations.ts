@@ -24,7 +24,7 @@ const prompt = ai.definePrompt({
   name: 'personalizedRecommendationsPrompt',
   input: {schema: PersonalizedRecommendationsInputSchema},
   output: {schema: PersonalizedRecommendationsOutputSchema},
-  model: 'googleai/gemini-1.5-flash-latest',
+  model: 'googleai/gemini-1.5-flash',
   config: {
     safetySettings: [
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },

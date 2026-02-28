@@ -31,6 +31,15 @@ const prompt = ai.definePrompt({
   name: 'summarizeReportPrompt',
   input: {schema: SummarizeReportInputSchema},
   output: {schema: SummarizeReportOutputSchema},
+  config: {
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
+    ],
+  },
   prompt: `You are an expert agricultural researcher. Please summarize the following report, highlighting the key findings and conclusions.\n\nReport:\n{{{reportText}}}`,
 });
 
@@ -41,7 +50,13 @@ const summarizeReportFlow = ai.defineFlow(
     outputSchema: SummarizeReportOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      if (!output) throw new Error("Failed to generate summary.");
+      return output;
+    } catch (error: any) {
+      console.error("Summarize Report Flow Error:", error);
+      throw new Error(`AI Summary Error: ${error.message}`);
+    }
   }
 );

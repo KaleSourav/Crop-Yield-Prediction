@@ -23,11 +23,10 @@ export async function getPersonalizedRecommendations(
   try {
     const result = await personalizedRecommendations(validatedInput.data);
     return { success: result };
-  } catch (e) {
-    console.error(e);
+  } catch (e: any) {
+    console.error('Personalized Recommendations Action Error:', e);
     return {
-      failure:
-        'Failed to get recommendations from AI. Please try again later.',
+      failure: e.message || 'Failed to get recommendations from AI. Please try again later.',
     };
   }
 }
@@ -36,10 +35,10 @@ export async function getYieldPrediction(input: PredictYieldInput) {
   try {
     const result = await predictYield(input);
     return { success: result };
-  } catch (e) {
-    console.error(e);
+  } catch (e: any) {
+    console.error('Yield Prediction Action Error:', e);
     return {
-      failure: 'Failed to get prediction from AI. Please try again later.',
+      failure: e.message || 'Failed to get prediction from AI. Please try again later.',
     };
   }
 }

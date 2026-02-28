@@ -46,6 +46,8 @@ Analyze the provided agricultural data in CSV format.
 1. Predict the crop yield in tons.
 2. Provide actionable recommendations based on the trends found in the data.
 
+Return only the valid JSON response.
+
 Data:
 {{{agriculturalData}}}
 `,
@@ -58,10 +60,15 @@ const predictYieldFlow = ai.defineFlow(
     outputSchema: PredictYieldOutputSchema,
   },
   async (input) => {
-    const {output} = await predictYieldPrompt(input);
-    if (!output) {
-      throw new Error("The AI model failed to produce a valid yield prediction.");
+    try {
+      const {output} = await predictYieldPrompt(input);
+      if (!output) {
+        throw new Error("The AI model failed to produce a valid yield prediction. Check if the CSV data is valid.");
+      }
+      return output;
+    } catch (error: any) {
+      console.error("Predict Yield Flow Error:", error);
+      throw new Error(`AI Yield Prediction Error: ${error.message}`);
     }
-    return output;
   }
 );

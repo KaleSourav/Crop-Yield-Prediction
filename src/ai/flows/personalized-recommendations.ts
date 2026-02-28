@@ -36,6 +36,7 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert agricultural advisor. 
   
   Based on the following farm profile, provide specific and actionable recommendations for irrigation, fertilization, and planting times.
+  Return only the JSON output.
 
   Location: {{{location}}}
   Crop Type: {{{cropType}}}
@@ -54,10 +55,15 @@ const personalizedRecommendationsFlow = ai.defineFlow(
     outputSchema: PersonalizedRecommendationsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    if (!output) {
-      throw new Error("The AI failed to generate recommendations. Please try again with different parameters.");
+    try {
+      const {output} = await prompt(input);
+      if (!output) {
+        throw new Error("The AI failed to generate recommendations. It might have been blocked by a safety filter or provided an invalid response.");
+      }
+      return output;
+    } catch (error: any) {
+      console.error("Personalized Recommendations Flow Error:", error);
+      throw new Error(`AI Recommendation Error: ${error.message || "Unknown error"}`);
     }
-    return output;
   }
 );

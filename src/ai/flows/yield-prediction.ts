@@ -31,6 +31,7 @@ const predictYieldPrompt = ai.definePrompt({
   name: 'predictYieldPrompt',
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
+  model: 'googleai/gemini-1.5-flash-latest',
   config: {
     safetySettings: [
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
@@ -63,12 +64,12 @@ const predictYieldFlow = ai.defineFlow(
     try {
       const {output} = await predictYieldPrompt(input);
       if (!output) {
-        throw new Error("The AI model failed to produce a valid yield prediction. Check if the CSV data is valid.");
+        throw new Error("The AI model failed to produce a valid yield prediction. Please verify your API key.");
       }
       return output;
     } catch (error: any) {
       console.error("Predict Yield Flow Error:", error);
-      throw new Error(`AI Yield Prediction Error: ${error.message}`);
+      throw new Error(`AI Yield Prediction Error: ${error.message || "Unknown error"}`);
     }
   }
 );

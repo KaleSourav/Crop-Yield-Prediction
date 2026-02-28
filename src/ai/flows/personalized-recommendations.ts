@@ -1,4 +1,3 @@
-// src/ai/flows/personalized-recommendations.ts
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for providing personalized agricultural recommendations to farmers.
@@ -13,8 +12,6 @@ import {z} from 'genkit';
 import { PersonalizedRecommendationsInputSchema, PersonalizedRecommendationsOutputSchema } from '@/ai/schemas';
 
 export type PersonalizedRecommendationsInput = z.infer<typeof PersonalizedRecommendationsInputSchema>;
-
-
 export type PersonalizedRecommendationsOutput = z.infer<typeof PersonalizedRecommendationsOutputSchema>;
 
 export async function personalizedRecommendations(
@@ -27,24 +24,27 @@ const prompt = ai.definePrompt({
   name: 'personalizedRecommendationsPrompt',
   input: {schema: PersonalizedRecommendationsInputSchema},
   output: {schema: PersonalizedRecommendationsOutputSchema},
-  prompt: `You are an AI assistant providing personalized agricultural recommendations to farmers.
+  config: {
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
+    ],
+  },
+  prompt: `You are an expert agricultural advisor. 
+  
+  Based on the following farm profile, provide specific and actionable recommendations for irrigation, fertilization, and planting times.
 
-  Based on the following farm data, provide specific and actionable recommendations for irrigation, fertilization, and planting times.
-
+  Location: {{{location}}}
+  Crop Type: {{{cropType}}}
   Soil pH: {{{soilPh}}}
   Nitrogen Levels: {{{nitrogenLevels}}} ppm
-  Rainfall: {{{rainfall}}} mm
-  Temperature: {{{temperature}}} °C
-  Humidity: {{{humidity}}} %
-  Historical Yield Trends: {{{historicalYieldTrends}}}
-  Crop Type: {{{cropType}}}
-  Location: {{{location}}}
-
-  Format your response as follows:
-
-  Irrigation Recommendation: [recommendation]
-  Fertilization Recommendation: [recommendation]
-  Planting Time Recommendation: [recommendation]`,
+  Monthly Rainfall: {{{rainfall}}} mm
+  Avg Temperature: {{{temperature}}} °C
+  Avg Humidity: {{{humidity}}} %
+  Historical Yield Trends: {{{historicalYieldTrends}}}`,
 });
 
 const personalizedRecommendationsFlow = ai.defineFlow(
@@ -55,6 +55,9 @@ const personalizedRecommendationsFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("The AI failed to generate recommendations. Please try again with different parameters.");
+    }
+    return output;
   }
 );

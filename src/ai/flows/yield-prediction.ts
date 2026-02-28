@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A crop yield prediction AI agent.
@@ -32,12 +31,20 @@ const predictYieldPrompt = ai.definePrompt({
   name: 'predictYieldPrompt',
   input: {schema: PredictYieldInputSchema},
   output: {schema: PredictYieldOutputSchema},
+  config: {
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_NONE' },
+    ],
+  },
   prompt: `You are an expert agriculture advisor and data analyst.
-Your task is to predict crop yield based on the provided agricultural data in CSV format.
+Analyze the provided agricultural data in CSV format. 
 
-1.  First, analyze the provided data to understand its key statistical properties and trends. Do not output this summary, use it for your internal reasoning.
-2.  Based on your analysis, predict the crop yield in tons.
-3.  Provide a set of actionable recommendations for the farmer based on your prediction and the data you analyzed.
+1. Predict the crop yield in tons.
+2. Provide actionable recommendations based on the trends found in the data.
 
 Data:
 {{{agriculturalData}}}
@@ -53,7 +60,7 @@ const predictYieldFlow = ai.defineFlow(
   async (input) => {
     const {output} = await predictYieldPrompt(input);
     if (!output) {
-      throw new Error("The AI model failed to produce a valid output.");
+      throw new Error("The AI model failed to produce a valid yield prediction.");
     }
     return output;
   }

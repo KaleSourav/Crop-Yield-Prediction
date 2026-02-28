@@ -196,9 +196,9 @@ export default function Home() {
           </TabsContent>
         </Tabs>
       </main>
-      <footer className="text-center p-4 text-muted-foreground text-sm">
-        &copy; {new Date().getFullYear()} CropCast. AI for Modern Agriculture.
-      </footer>
+      {/* <footer className="text-center p-4 text-muted-foreground text-sm">
+        &copy; {new Date().getFullYear()}Hllo
+      </footer> */}
     </div>
   );
 }
